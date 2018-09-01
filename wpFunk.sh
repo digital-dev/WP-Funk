@@ -99,8 +99,8 @@ updatewp () {
 }
 # Creates a full backup of the WordPress instance.
 backup () {
-	if [ ! -d "${wpdir}/backup" ]; then
-		mkdir -p "${wpdir}/backup"
+	if [ ! -d "${wpdir}/../backup" ]; then
+		mkdir -p "${wpdir}/../backup"
 	fi
 	  DB_NAME=$(grep DB_NAME < "$wpconf" | awk '{print $2}')
 	  DB_NAME=${DB_NAME:1:$((${#DB_NAME} - 5))}
@@ -109,22 +109,10 @@ backup () {
 	  DB_PASS=$(grep DB_PASS < "$wpconf" | awk '{print $2}')
 	  DB_PASS=${DB_PASS:1:$((${#DB_PASS} - 5))}
 	  mysqldump -u"${DB_USER}" -p"${DB_PASS}" "${DB_NAME}" > "database_${DB_NAME}_${stamp}.sql"
-	tar --exclude "./backup" --exclude "$(basename "$0")" -czvf "${wpdir}/backup/backup_${stamp}.tar.gz" ./
+	tar --exclude "$(basename "$0")" -czvf "../backup/backup_${stamp}.tar.gz" ./
 	rm database_"${DB_NAME}"_"${stamp}".sql
 	echo -e "\n Backed up WordPress instance to ${wpdir}/backup/backup_${stamp}.tar.gz"
 	sleep 3
-}
-initbackup() {
-	clear
-	while :
-	do
-	read -r -p "Do you want to create a backup of this WordPress site before you begin?" ccmnd
-	case $ccmnd in
-	[Yy]* ) backup;;
-	[Nn]* ) break;;
-	*) echo "Please enter only yes or no. (y/n)";;
-	esac
-	done
 }
 getwpdir() {
 if [ -f wp-config.php ]; then
@@ -159,6 +147,18 @@ selfdestruct() {
 getwpdir
 getwpuser
 getwpcli
+initbackup() {
+	clear
+	while :
+	do
+	read -r -p "Do you want to create a backup of this WordPress site before you begin?" ccmnd
+	case $ccmnd in
+	[Yy]* ) backup;;
+	[Nn]* ) break;;
+	*) echo "Please enter only yes or no. (y/n)";;
+	esac
+	done
+}
 initbackup
 clear
 menu () {
