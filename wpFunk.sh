@@ -2,8 +2,6 @@
 #######################################################################
 #                            Home of the Vars!                       ##
 #                                                                    ##
-# Optional self-destruct function for live use.                      ##
-trap selfdestruct INT                                                ##
 # Enables extented globbing for more advanced pattern matching.      ##
 shopt -s extglob                                                     ##
 # Ensures "." files included in advanced pattern matching.           ##
@@ -18,12 +16,6 @@ white=$'\e[0m'                                                       ##
 # Helps create a log of all actions performed.
 logger () {
   echo -e "$(date +%a-%b-%d@%T): ${1}" >> "${logfile}"
-}
-checkroot () {
-if [ $EUID -ne 0 ]; then
-echo "And you are?.. (not root)"
-exit 1
-fi
 }
 # Confirms the use of a dangerous or irreversible command.
 confirmcommand () {
@@ -94,6 +86,7 @@ updatewp () {
 	chown -R "${webuser}":"${webuser}" wordpress/ && echo -e "Fixed Ownership.\\n"
 	rm latest.tar.gz
 	rsync -auP wordpress/ .
+	rm -rfv wordpress/
 	echo "Downloaded and installed latest version of wordpress."
 	sleep 3
 }
@@ -133,16 +126,6 @@ getwpuser() {
 getwpcli() {
 	curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 	chmod +x wp-cli.phar
-}
-shelldrop() {
-	echo
-	echo -e "To get back to $(basename "$0"),type \"exit\"."
-	bash -i
-}
-selfdestruct() {
-	rm ./"$(basename "$0")"
-	rm ./wp-cli.phar
-	exit
 }
 getwpdir
 getwpuser
